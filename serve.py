@@ -4,7 +4,9 @@
 # of files to write under assets/ (the generated-art export, tools/export_assets.js).
 import http.server, sys, os, base64, re, json
 from urllib.parse import urlparse, parse_qs
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
+# a port may be given first; everything else is a flag (--local, --open, --tunnel)
+args = [a for a in sys.argv[1:] if not a.startswith('-')]
+PORT = int(args[0]) if args else 8765
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SHOTS = os.path.join(ROOT, 'runner', 'shots')
 class H(http.server.SimpleHTTPRequestHandler):
@@ -112,6 +114,16 @@ if not LOCAL_ONLY:
     ip = lan_ip()
     if ip: print('On this network:  http://%s:%d   (phone/tablet on the same Wi-Fi)' % (ip, PORT), flush=True)
     print('Windows may ask to allow Python through the firewall the first time - say yes for private networks.', flush=True)
+# --tunnel: a Cloudflare quick tunnel to this server, so the phone can play from anywhere, not just this Wi-Fi.
+# Nothing is uploaded - the tunnel hands the requests to this process - and the address changes every run.
+if '--tunnel' in sys.argv:
+    import subprocess, shutil
+    exe = shutil.which('cloudflared') or r'C:\Program Files (x86)\cloudflared\cloudflared.exe'
+    if os.path.exists(exe):
+        print('Opening a Cloudflare tunnel - the https://...trycloudflare.com address below is the one to open on the phone.', flush=True)
+        subprocess.Popen([exe, 'tunnel', '--url', 'http://localhost:%d' % PORT])
+    else:
+        print('cloudflared is not installed: winget install --id Cloudflare.cloudflared', flush=True)
 if '--open' in sys.argv:
     import webbrowser, threading
     threading.Timer(0.5, lambda: webbrowser.open('http://localhost:%d/' % PORT)).start()

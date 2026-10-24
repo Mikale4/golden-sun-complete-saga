@@ -35,7 +35,25 @@ on the right, the quick-Psynergy and challenge keys in the corner, with fullscre
 slide from one button to the next without lifting. In portrait the pad takes a band under the screen; in landscape it
 lies over the corners. `?touch=1` forces the pad on for testing on a desktop, `?touch=0` off.
 
-Windows blocks this until the port is allowed through the firewall on **private** networks — once, from an elevated
+### From anywhere (a tunnel)
+
+```bash
+python serve.py --tunnel
+```
+
+or double-click **`Play from Anywhere.bat`**. It prints a `https://....trycloudflare.com` address that carries the
+requests back to this machine - music and all - for as long as the window stays open. The address is new every run,
+and nothing is uploaded. Needs cloudflared once: `winget install --id Cloudflare.cloudflared`.
+
+### Online (GitHub Pages)
+
+<https://mikale4.github.io/golden-sun-complete-saga/> plays in any browser, phone included, with the on-screen pad.
+The soundtrack is not in the repository, so that copy is **silent**; for the music, use the Wi-Fi address or the
+tunnel above.
+
+### The firewall
+
+Windows blocks the Wi-Fi address until the port is allowed through the firewall on **private** networks — once, from an elevated
 PowerShell:
 
 ```
