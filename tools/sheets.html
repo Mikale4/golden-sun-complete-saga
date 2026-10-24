@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Character sheet inspector</title>
+<style>
+  :root { --bg: #16131e; --panel: #221d2e; --ink: #e8e2f0; --dim: #9a90ac; --line: #3a3150; --warn: #f0b040; --bad: #f06060; --ok: #70d080; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 Consolas, "Courier New", monospace; }
+  header { position: sticky; top: 0; background: var(--panel); border-bottom: 1px solid var(--line); padding: 8px 14px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; z-index: 2; }
+  header h1 { font-size: 15px; margin: 0 10px 0 0; }
+  header label { color: var(--dim); }
+  input, select { background: var(--bg); color: var(--ink); border: 1px solid var(--line); padding: 3px 6px; font: inherit; }
+  #count { color: var(--dim); }
+  main { padding: 10px 14px 40px; }
+  h2 { font-size: 14px; color: var(--dim); margin: 22px 0 8px; border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+  .sheet { display: grid; grid-template-columns: 220px 1fr; gap: 12px; padding: 10px; margin-bottom: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+  .sheet.missing { opacity: .55; }
+  .meta b { display: block; font-size: 14px; }
+  .meta .path { color: var(--dim); word-break: break-all; }
+  .meta .note { margin-top: 6px; }
+  .note.bad { color: var(--bad); } .note.warn { color: var(--warn); } .note.ok { color: var(--ok); }
+  .pics { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .pics figure { margin: 0; }
+  .pics figcaption { color: var(--dim); margin-bottom: 4px; }
+  canvas { image-rendering: pixelated; background: #2c2640; }
+  .frames canvas { background: #3c8850; }
+  .walk canvas { background: #3c8850; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Character sheets</h1>
+  <label>filter <input id="q" placeholder="isaac, pirate, npc:..." size="24"></label>
+  <label>group <select id="grp"><option value="">all</option><option>party</option><option>npcs</option><option>townsfolk</option><option>unreferenced</option></select></label>
+  <label><input type="checkbox" id="onlyBad"> problems only</label>
+  <span id="count"></span>
+</header>
+<main id="main"></main>
+<!-- the game's own sheet pipeline, so what is shown is what the field draws -->
+<script>const Sprites = { cache: {} };</script>
+<script src="/js/core/util.js"></script>
+<script src="/js/core/gfx.js"></script>
+<script src="/js/core/spritesheets.js"></script>
+<script src="/js/data/characters.js"></script>
+<script>
+'use strict';
+const slug = (n) => String(n).toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+const RAW_H = 160;           // the source sheet is shown this tall
+const FRAME_SCALE = 3;       // the game's 16x24 frames, enlarged
+const DIRS = ['down', 'left', 'right', 'up'];
+
+// every sheet the game would look for, and every file the folder holds
+function expected() {
+  const list = [];
+  for (const id in CHARACTERS) { const look = CHARACTERS[id].look; if (look && look.sheet) list.push({ group: 'party', id: look.sheet, name: CHARACTERS[id].name || id, path: 'sprites/field/party/' + look.sheet + '.png' }); }
+  for (const id in NPC_LOOKS) list.push({ group: 'npcs', id: 'npc:' + id, name: id, path: 'sprites/field/npcs/' + slug(id) + '.png' });
+  for (const t in NPC_TYPES) for (let k = 1; k <= 3; k++) list.push({ group: 'townsfolk', id: t + '_' + k, name: t + ' #' + k, path: 'sprites/field/townsfolk/' + t + '_' + k + '.png' });
+  return list;
+}
+function loadImg(path) { return new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = '/assets/' + path + '?t=' + Date.now(); }); }
+
+// the cells' figures, measured the way SpriteSheets.apply measures them
+function measure(img) {
+  const cols = 3, rows = 4, cw = img.width / cols, ch = img.height / rows;
+  const c = Gfx.canvas(img.width, img.height), g = Gfx.ctx(c); g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 0, img.width, img.height).data; const boxes = [];
+  for (let r = 0; r < rows; r++) for (let f = 0; f < cols; f++) {
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1; const bx = Math.floor(f * cw), by = Math.floor(r * ch), bw = Math.floor(cw), bh = Math.floor(ch);
+    for (let y = by; y < by + bh; y++) for (let x = bx; x < bx + bw; x++) { const i = (y * img.width + x) * 4; if (d[i + 3] >= 128 && !SpriteSheets.isKey(d[i], d[i + 1], d[i + 2])) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+    boxes.push(x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1, cx: bx, cy: by, cw: bw, ch: bh });
+  }
+  return boxes;
+}
+function problems(img, boxes) {
+  const out = []; const cw = img.width / 3, ch = img.height / 4;
+  if (Math.abs(cw / ch - 16 / 24) > 0.18) out.push(['warn', 'cells are ' + cw.toFixed(0) + 'x' + ch.toFixed(0) + ', not 2:3 - the grid may be cut wrong']);
+  const empty = boxes.filter(b => !b).length; if (empty) out.push(['bad', empty + ' empty cell' + (empty > 1 ? 's' : '')]);
+  const hs = boxes.filter(Boolean).map(b => b.h), ws = boxes.filter(Boolean).map(b => b.w);
+  if (hs.length) { const mn = Math.min(...hs), mx = Math.max(...hs); if (mx > mn * 1.25) out.push(['warn', 'figures vary in height ' + mn + '-' + mx + ' px - a cell holds more or less than one figure']); }
+  if (ws.length) { const mn = Math.min(...ws), mx = Math.max(...ws); if (mx > mn * 1.6) out.push(['warn', 'figures vary in width ' + mn + '-' + mx + ' px']); }
+  for (const b of boxes) if (b && (b.x <= b.cx || b.y <= b.cy || b.x + b.w >= b.cx + b.cw || b.y + b.h >= b.cy + b.ch)) { out.push(['warn', 'a figure touches its cell edge - cut through, or the cells are misaligned']); break; }
+  return out;
+}
+function card(e, img) {
+  const el = document.createElement('div'); el.className = 'sheet' + (img ? '' : ' missing'); el.dataset.group = e.group; el.dataset.key = (e.id + ' ' + e.name + ' ' + e.path).toLowerCase();
+  const meta = document.createElement('div'); meta.className = 'meta';
+  meta.innerHTML = '<b>' + e.id + '</b><div>' + e.name + ' &middot; ' + e.group + '</div><div class="path">' + e.path + '</div>';
+  el.appendChild(meta);
+  if (!img) { meta.innerHTML += '<div class="note bad">no file - the game draws this one in code</div>'; el.dataset.bad = '1'; return el; }
+  const boxes = measure(img); const probs = problems(img, boxes);
+  meta.innerHTML += '<div class="note">' + img.width + 'x' + img.height + ' px, cells ' + (img.width / 3).toFixed(1) + 'x' + (img.height / 4).toFixed(1) + '</div>';
+  for (const [k, t] of probs) meta.innerHTML += '<div class="note ' + k + '">' + t + '</div>';
+  if (!probs.length) meta.innerHTML += '<div class="note ok">looks like a clean 3x4 sheet</div>'; else el.dataset.bad = '1';
+  const pics = document.createElement('div'); pics.className = 'pics'; el.appendChild(pics);
+  // the source, with the grid and each figure's box
+  const sc = RAW_H / img.height; const raw = Gfx.canvas(Math.round(img.width * sc), RAW_H); const rg = raw.getContext('2d'); rg.imageSmoothingEnabled = false;
+  rg.drawImage(img, 0, 0, raw.width, raw.height);
+  rg.strokeStyle = 'rgba(255,255,255,.6)'; for (let i = 1; i < 3; i++) { rg.beginPath(); rg.moveTo(i * raw.width / 3, 0); rg.lineTo(i * raw.width / 3, raw.height); rg.stroke(); } for (let j = 1; j < 4; j++) { rg.beginPath(); rg.moveTo(0, j * raw.height / 4); rg.lineTo(raw.width, j * raw.height / 4); rg.stroke(); }
+  rg.strokeStyle = 'rgba(255,240,80,.9)'; for (const b of boxes) if (b) rg.strokeRect(b.x * sc + .5, b.y * sc + .5, b.w * sc, b.h * sc);
+  const f1 = document.createElement('figure'); f1.innerHTML = '<figcaption>source (grid, figure boxes)</figcaption>'; f1.appendChild(raw); pics.appendChild(f1);
+  // the frames the game draws, from the game's own pipeline
+  SpriteSheets.apply(e.id, img); const set = SpriteSheets.sets[e.id];
+  const fr = Gfx.canvas(3 * 16 * FRAME_SCALE + 2 * 3, 4 * 24 * FRAME_SCALE + 3 * 3); const fg = fr.getContext('2d'); fg.imageSmoothingEnabled = false;
+  for (let d = 0; d < 4; d++) for (let f = 0; f < 3; f++) fg.drawImage(set[d][f], 0, 0, 16, 24, f * (16 * FRAME_SCALE + 3), d * (24 * FRAME_SCALE + 3), 16 * FRAME_SCALE, 24 * FRAME_SCALE);
+  const f2 = document.createElement('figure'); f2.className = 'frames'; f2.innerHTML = '<figcaption>in game (16x24, x' + FRAME_SCALE + ')</figcaption>'; f2.appendChild(fr); pics.appendChild(f2);
+  // a walk cycle, animated, all four ways
+  const wk = Gfx.canvas(4 * (16 * FRAME_SCALE + 6), 24 * FRAME_SCALE); const wg = wk.getContext('2d'); wg.imageSmoothingEnabled = false;
+  const f3 = document.createElement('figure'); f3.className = 'walk'; f3.innerHTML = '<figcaption>walking</figcaption>'; f3.appendChild(wk); pics.appendChild(f3);
+  el._anim = (t) => { wg.clearRect(0, 0, wk.width, wk.height); const step = [0, 1, 0, 2][Math.floor(t / 180) % 4]; for (let d = 0; d < 4; d++) wg.drawImage(set[d][step], 0, 0, 16, 24, d * (16 * FRAME_SCALE + 6), 0, 16 * FRAME_SCALE, 24 * FRAME_SCALE); };
+  return el;
+}
+async function main() {
+  const main = document.getElementById('main');
+  const files = await fetch('/assets/manifest.json?t=' + Date.now()).then(r => r.json());
+  const have = new Set(files);
+  const list = expected(); const known = new Set(list.map(e => e.path));
+  for (const f of files) if (f.startsWith('sprites/field/') && !known.has(f)) list.push({ group: 'unreferenced', id: f.replace(/^sprites\/field\//, '').replace(/\.png$/, ''), name: 'not used by the game', path: f });
+  const groups = {}; for (const e of list) (groups[e.group] = groups[e.group] || []).push(e);
+  const cards = [];
+  for (const g of ['party', 'npcs', 'townsfolk', 'unreferenced']) {
+    if (!groups[g]) continue;
+    const h = document.createElement('h2'); h.textContent = g + ' (' + groups[g].length + ')'; h.dataset.group = g; main.appendChild(h);
+    for (const e of groups[g]) { const img = have.has(e.path) ? await loadImg(e.path) : null; const c = card(e, img); main.appendChild(c); cards.push(c); }
+  }
+  const q = document.getElementById('q'), grp = document.getElementById('grp'), onlyBad = document.getElementById('onlyBad'), count = document.getElementById('count');
+  const refilter = () => { const s = q.value.trim().toLowerCase(); let n = 0; for (const c of cards) { const show = (!s || c.dataset.key.includes(s)) && (!grp.value || c.dataset.group === grp.value) && (!onlyBad.checked || c.dataset.bad); c.style.display = show ? '' : 'none'; if (show) n++; } for (const h of main.querySelectorAll('h2')) h.style.display = (!grp.value || h.dataset.group === grp.value) ? '' : 'none'; count.textContent = n + ' of ' + cards.length + ' sheets'; };
+  q.oninput = grp.onchange = onlyBad.onchange = refilter; refilter();
+  const tick = (t) => { for (const c of cards) if (c._anim && c.style.display !== 'none') c._anim(t); requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+}
+main();
+</script>
+</body>
+</html>

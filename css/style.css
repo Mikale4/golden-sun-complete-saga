@@ -1,0 +1,44 @@
+html, body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; font-family: 'Segoe UI', sans-serif; }
+#wrap { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; }
+#screen {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background:#000;
+  outline:none;
+}
+#hint { color:#777; font-size:12px; margin-top:8px; letter-spacing:0.3px; user-select:none; }
+body.fs #hint { display:none; }
+
+/* ---------- the touch pad (js/core/touch.js): only on a touch screen, body.touch ---------- */
+body.touch #hint { display: none; }
+body.touch.portrait #wrap { bottom: var(--pad-h, 0px); }
+#pad { position: fixed; inset: 0; z-index: 10; pointer-events: none; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+#pad [data-key], #pad [data-act] { pointer-events: auto; touch-action: none; }
+#pad .d, #pad .btn, #pad .mini {
+  position: absolute; box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+  background: rgba(20,28,56,0.62); border: 2px solid rgba(176,190,255,0.45); color: #ffe060;
+  font-family: 'Segoe UI', sans-serif; font-weight: 700; letter-spacing: 0.5px;
+}
+#pad .d:active, #pad .btn:active, #pad .mini:active { background: rgba(80,110,210,0.80); border-color: #ffe060; }
+/* the d-pad: a cross of four zones, bottom left */
+#dpad { position: absolute; left: 5vw; bottom: 4vh; width: var(--dp); height: var(--dp); }
+#dpad .d { width: 34%; height: 34%; }
+#dpad .up { left: 33%; top: 0; border-radius: 10px 10px 0 0; border-bottom: none; }
+#dpad .down { left: 33%; bottom: 0; border-radius: 0 0 10px 10px; border-top: none; }
+#dpad .left { left: 0; top: 33%; border-radius: 10px 0 0 10px; border-right: none; }
+#dpad .right { right: 0; top: 33%; border-radius: 0 10px 10px 0; border-left: none; }
+#dpad .hub { left: 33%; top: 33%; width: 34%; height: 34%; background: rgba(20,28,56,0.62); border: none; pointer-events: none; }
+#dpad .up::after { content: '\25B2'; } #dpad .down::after { content: '\25BC'; }
+#dpad .left::after { content: '\25C0'; } #dpad .right::after { content: '\25B6'; }
+/* the face buttons, bottom right: X cancel/menu, Z confirm, C Psynergy */
+#btns { position: absolute; right: 5vw; bottom: 4vh; width: calc(var(--bt) * 2.5); height: calc(var(--bt) * 2.2); }
+#btns .btn { width: var(--bt); height: var(--bt); border-radius: 50%; font-size: calc(var(--bt) * 0.42); }
+#btns .a { right: 0; bottom: 0; }
+#btns .b { left: 0; bottom: calc(var(--bt) * 0.55); }
+#btns .r { right: calc(var(--bt) * 0.35); top: 0; }
+/* the small row: quick Psynergy, challenge, fullscreen, mute */
+#extras { position: absolute; right: 2vw; top: 1.5vh; display: flex; gap: 6px; }
+#pad .mini { position: relative; min-width: 38px; height: 30px; padding: 0 8px; border-radius: 8px; font-size: 13px; color: #c8d2ff; }
+:root { --dp: min(44vw, 210px); --bt: min(17vw, 78px); }
+body.touch:not(.portrait) { --dp: min(36vh, 180px); --bt: min(15vh, 72px); }
+body.touch:not(.portrait) #pad .d, body.touch:not(.portrait) #pad .btn { opacity: 0.72; }

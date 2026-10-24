@@ -1,0 +1,46 @@
+# ---------- what does not belong in the repository ----------
+# The soundtrack and the effects: 400+ MB of recordings, and they are the originals' - they stay on this machine.
+# Without them the game plays silently; copy audio/ into a clone by hand to get the music back.
+audio/
+
+# The reference rips the maps and sprites were drawn from (screenshots of the original games), and the generated
+# art export - the game draws its own tiles in code (ART_MODE classic), so none of this is needed to play.
+assets/
+assets_backup/
+art/
+psynergy/
+scenery/
+prompts/
+text/
+map references/
+reference images/
+reference game mechanics/
+battle references/
+backgrounds references/
+
+# The runner's own output: screenshots of every area, audit dumps, and the checkpoints of a playthrough in progress.
+# The runner itself (runner/*.js and the plans) is kept.
+runner/shots/
+runner/*.txt
+runner/ckpt_*.json
+runner/report.json
+runner/*.json.bak
+runner/reveal_shot/
+runner/ckpt_old/
+
+# Tool data: the tile classifier's training set and the per-map working folders.
+tools/__pycache__/
+tools/tiletrain.npz
+tools/tm/
+tools/area_ref/
+tools/caves/
+tools/dungeons/
+tools/towns/
+
+# Scratch
+*.pyc
+Thumbs.db
+desktop.ini
+
+# The reference art archives dropped in at the root (psynergy.zip, battle.zip, ...): rips, like the folders above.
+*.zip

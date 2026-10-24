@@ -1,0 +1,261 @@
+{
+ "total": 372,
+ "byCat": {
+  "long": 23,
+  "light": 22,
+  "axe": 17,
+  "mace": 15,
+  "staff": 23,
+  "armor": 21,
+  "cloth": 18,
+  "robe": 16,
+  "shield": 13,
+  "glove": 13,
+  "brace": 12,
+  "helm": 15,
+  "hat": 16,
+  "circlet": 13,
+  "consume": 17,
+  "ring": 34,
+  "misc": 44,
+  "shirt": 7,
+  "boots": 11,
+  "special": 1,
+  "rusty": 11,
+  "forge": 10
+ },
+ "issues": [
+  {
+   "item": "Claymore",
+   "cat": "long",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Great Sword",
+   "cat": "long",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Master Rapier",
+   "cat": "light",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Great Axe",
+   "cat": "axe",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "War Mace",
+   "cat": "mace",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Blessed Mace",
+   "cat": "mace",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Empty Bottle",
+   "cat": "consume",
+   "msg": "consumable with no use or battle effect"
+  },
+  {
+   "item": "Empty Bottle",
+   "cat": "consume",
+   "msg": "no description"
+  },
+  {
+   "item": "Game Ticket",
+   "cat": "misc",
+   "msg": "consumable with no use or battle effect"
+  },
+  {
+   "item": "Lucky Medal",
+   "cat": "misc",
+   "msg": "consumable with no use or battle effect"
+  },
+  {
+   "item": "Cell Key",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "War Ring",
+   "cat": "ring",
+   "msg": "desc names a attack bonus the entry lacks"
+  },
+  {
+   "item": "Captain's Axe",
+   "cat": "axe",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Captain's Axe",
+   "cat": "axe",
+   "msg": "desc names a defense bonus the entry lacks"
+  },
+  {
+   "item": "Fireman's Pole",
+   "cat": "staff",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Clotho's Distaff",
+   "cat": "staff",
+   "msg": "costly weapon with no unleash (artifact weapons all unleash)"
+  },
+  {
+   "item": "Phantasmal Mail",
+   "cat": "armor",
+   "msg": "desc names a luck bonus the entry lacks"
+  },
+  {
+   "item": "Rusty Sword",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Sword B",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Sword C",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Sword D",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Axe",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Axe B",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Mace",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Mace B",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Staff",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Staff B",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Rusty Staff C",
+   "cat": "rusty",
+   "msg": "no description"
+  },
+  {
+   "item": "Healing Fungus",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Laughing Fungus",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Dancing Idol",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Pretty Stone",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Red Cloth",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Milk",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Li'l Turtle",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Large Bread",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Sea God's Tear",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Ruin Key",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Layana's Letter",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Hermes Water",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Black Orb",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Signal Whistle",
+   "cat": "misc",
+   "msg": "no description"
+  },
+  {
+   "item": "Wooden Stick",
+   "cat": "staff",
+   "msg": "equipping it changes no stat"
+  },
+  {
+   "item": "Leather Armor",
+   "cat": "armor",
+   "msg": "equipping it changes no stat"
+  },
+  {
+   "item": "Cotton Shirt",
+   "cat": "cloth",
+   "msg": "equipping it changes no stat"
+  },
+  {
+   "item": "Cleric's Ring",
+   "cat": "ring",
+   "msg": "equipping it changes no stat"
+  }
+ ],
+ "ok": [],
+ "issueCount": 46
+}

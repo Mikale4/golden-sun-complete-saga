@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Golden Sun: The Complete Saga</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="screen" width="240" height="160"></canvas>
+  <div id="hint">Arrows: Move &nbsp;•&nbsp; Z/Enter: Confirm/Talk &nbsp;•&nbsp; X/Esc: Cancel/Menu &nbsp;•&nbsp; C: Psynergy &nbsp;•&nbsp; A/S: Quick Psynergy &nbsp;•&nbsp; Space: Challenge &nbsp;•&nbsp; F: Fullscreen &nbsp;•&nbsp; M: Mute</div>
+</div>
+<script>
+// Sequential script loader (cache-busted while developing over http)
+(function () {
+  const files = [
+    'js/core/util.js', 'js/core/input.js', 'js/data/audio_map.js', 'js/core/audio.js', 'js/core/font.js', 'js/core/gfx.js', 'js/core/sprites.js', 'js/core/battle_party.js', 'js/core/battle_foes.js', 'js/core/battle_summons.js', 'js/core/battle_bgs.js', 'js/core/tiles.js', 'js/core/tiles_props.js', 'js/data/tilesheets.js', 'js/core/tilesheet.js', 'js/core/spritesheets.js', 'js/core/assetfiles.js', 'js/core/ui.js', 'js/core/touch.js', 'js/core/engine.js',
+    'js/data/enemies_gen.js', 'js/data/items_gen.js', 'js/data/artifacts.js', 'js/data/psynergy.js', 'js/data/djinn.js', 'js/data/summons.js', 'js/data/classes.js', 'js/data/characters.js', 'js/data/enemy_sprites.js', 'js/data/shops.js', 'js/data/hidden_items.js', 'js/data/class_items.js',
+    'js/maps/mapgen.js', 'js/game/story_gs1.js', 'js/game/story_tla.js', 'js/game/story_mars.js',
+    'js/maps/world_gs1_layout.js', 'js/maps/world_gs1_edits.js', 'js/maps/world_gs1_gates.js', 'js/maps/world_gs1.js', 'js/maps/world_tla_layout.js', 'js/maps/world_tla_edits.js', 'js/maps/world_tla_seawalls.js', 'js/maps/world_tla.js', 'js/maps/vale_layout.js', 'js/maps/vale.js', 'js/maps/vault_layout.js', 'js/maps/gs1_towns.js', 'js/maps/gs1_dungeons.js', 'js/maps/mogall.js', 'js/maps/xian.js', 'js/maps/altin.js', 'js/maps/altin_mine.js', 'js/maps/lama.js', 'js/maps/lamakan.js', 'js/maps/kalay.js', 'js/maps/ship.js', 'js/maps/tolbi_docks.js', 'js/maps/alpine.js', 'js/maps/bilibin_cave.js', 'js/maps/gs1_optional.js', 'js/maps/crossbone.js', 'js/maps/kalay_tunnel.js', 'js/maps/lunpa.js', 'js/maps/tolbi.js', 'js/maps/colosso.js', 'js/maps/altmiller.js', 'js/maps/gondowan.js', 'js/maps/suhalla.js', 'js/maps/suhalla_desert.js', 'js/maps/suhalla_gate.js', 'js/maps/lalivero.js', 'js/maps/babi.js', 'js/maps/venus.js', 'js/maps/sea_god_shrine.js', 'js/maps/kandorean.js', 'js/maps/dehkan.js', 'js/maps/sol_layout.js', 'js/maps/sol_sanctum.js', 'js/maps/goma_layout.js', 'js/maps/goma_out_layout.js', 'js/maps/goma.js', 'js/maps/bilibin_layout.js', 'js/maps/bilibin.js', 'js/maps/kolima_layout.js', 'js/maps/kolima_cave_layout.js', 'js/maps/kolima.js', 'js/maps/kforest_layout.js', 'js/maps/kolima_forest.js', 'js/maps/imil_layout.js', 'js/maps/imil.js', 'js/maps/mercury.js', 'js/maps/kolima_bridge_layout.js', 'js/maps/kolima_bridge.js', 'js/maps/fuchin_layout.js', 'js/maps/fuchin.js', 'js/maps/loho_layout.js', 'js/maps/loho.js', 'js/maps/prox_layout.js', 'js/maps/prox.js', 'js/maps/tla_towns.js', 'js/maps/madra.js', 'js/maps/madra_catacombs.js', 'js/maps/osenia_cliffs.js', 'js/maps/yampi.js', 'js/maps/alhafra_layout.js', 'js/maps/alhafra.js', 'js/maps/alhafra_east.js', 'js/maps/alhafra_cave.js', 'js/maps/mikasalla.js', 'js/maps/osenia_cavern.js', 'js/maps/garoh.js', 'js/maps/airs_rock.js', 'js/maps/airs_rock_inside.js', 'js/maps/gondowan_cliffs.js', 'js/maps/naribwe.js', 'js/maps/kibombo_mtns.js', 'js/maps/kibombo.js', 'js/maps/gabomba.js', 'js/maps/gabomba_catacombs.js', 'js/maps/indra_shore.js', 'js/maps/yallam.js', 'js/maps/taopo.js', 'js/maps/apojii.js', 'js/maps/aqua_rock.js', 'js/maps/tundaria.js', 'js/maps/izumo.js', 'js/maps/gaia_rock.js', 'js/maps/ankohl.js', 'js/maps/champa.js', 'js/maps/sea_of_time.js', 'js/maps/lemuria.js', 'js/maps/western_sea.js', 'js/maps/atteka_inlet.js', 'js/maps/contigo.js', 'js/maps/shaman.js', 'js/maps/trial_road.js', 'js/maps/jupiter_lh.js', 'js/maps/magma_rock.js', 'js/maps/tla_dungeons.js', 'js/maps/islets.js', 'js/maps/caverns.js', 'js/maps/treasure_isle.js', 'js/maps/yampi_cave.js', 'js/maps/anemos.js', 'js/maps/mars_lh.js', 'js/maps/class_trials_gs1.js', 'js/maps/class_trials_tla.js', 'js/maps/postgame.js',
+    'js/game/party.js', 'js/game/inventory.js', 'js/game/battle.js', 'js/game/boss_gimmicks.js', 'js/game/tactics.js', 'js/game/battle_fx.js', 'js/game/events.js', 'js/game/field_fx.js', 'js/game/field.js', 'js/game/class_ext.js', 'js/game/story_post.js', 'js/game/endings.js', 'js/game/menu.js', 'js/game/shop.js', 'js/game/fountain.js', 'js/game/forge.js', 'js/game/travelers.js', 'js/game/reputation.js', 'js/game/djinndex.js', 'js/game/saveslots.js', 'js/game/quests.js', 'js/game/bestiary.js', 'js/game/settings.js', 'js/game/camp.js', 'js/game/arena.js', 'js/maps/arena.js', 'js/game/demo.js', 'js/game/title.js', 'js/game/main.js', 'tools/world_editor_ingame.js'
+  ];
+  const v = location.protocol === 'file:' ? '' : '?v=' + Date.now();
+  for (const f of files) { const s = document.createElement('script'); s.src = f + v; s.async = false; document.body.appendChild(s); }
+})();
+</script>
+</body>
+</html>

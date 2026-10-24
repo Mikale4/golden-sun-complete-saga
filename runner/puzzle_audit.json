@@ -1,0 +1,165 @@
+{
+ "checked": 14,
+ "allFree": [
+  "mr_e2"
+ ],
+ "detail": [
+  {
+   "map": "magma_rock",
+   "puzzles": "boulder:mr_boulder crack:mr_st1 pillar:mr_pil1 crack:mr_st2 pillar:mr_pil2",
+   "exits": 3,
+   "freeRoutes": 0,
+   "ofRoutes": 4,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "magma_rock_b",
+   "puzzles": "sprout:mr_sprout1 crack:mr_st3 crack:mr_st4 sprout:mr_sprout2 crack:mr_st5 pillar:mr_pil3",
+   "exits": 2,
+   "freeRoutes": 0,
+   "ofRoutes": 2,
+   "allFree": false,
+   "routes": [],
+   "chests": [
+    "FREE Oil Drop@23,30"
+   ]
+  },
+  {
+   "map": "magma_rock_c",
+   "puzzles": "rope:mr_rope crack:mr_st6 pillar:mr_pil4",
+   "exits": 2,
+   "freeRoutes": 0,
+   "ofRoutes": 2,
+   "allFree": false,
+   "routes": [],
+   "chests": [
+    "FREE Coins@15,24"
+   ]
+  },
+  {
+   "map": "magma_rock_d",
+   "puzzles": "hop:hop_12_28 hop:hop_14_28 pillar:mr_pil5 crack:mr_st7",
+   "exits": 3,
+   "freeRoutes": 2,
+   "ofRoutes": 6,
+   "allFree": false,
+   "routes": [
+    "magma_rock_c -> magma_rock_e@2,27",
+    "magma_rock_e -> magma_rock_c@2,31"
+   ],
+   "chests": []
+  },
+  {
+   "map": "magma_rock_top",
+   "puzzles": "crack:mr_moai_top",
+   "exits": 1,
+   "freeRoutes": 0,
+   "ofRoutes": 0,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "mr_hub",
+   "puzzles": "crack:mr_moai1",
+   "exits": 4,
+   "freeRoutes": 2,
+   "ofRoutes": 6,
+   "allFree": false,
+   "routes": [
+    "magma_rock_top -> mr_s1@20,22",
+    "mr_s1 -> magma_rock_top@12,22"
+   ],
+   "chests": []
+  },
+  {
+   "map": "mr_s1",
+   "puzzles": "pillar:mr_pil_s1",
+   "exits": 2,
+   "freeRoutes": 0,
+   "ofRoutes": 2,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "mr_s4",
+   "puzzles": "pillar:mr_pil_s4",
+   "exits": 1,
+   "freeRoutes": 0,
+   "ofRoutes": 0,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "mr_e1",
+   "puzzles": "hop:hop_4_7",
+   "exits": 1,
+   "freeRoutes": 0,
+   "ofRoutes": 0,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "mr_e2",
+   "puzzles": "pillar:mr_pil_e2",
+   "exits": 2,
+   "freeRoutes": 2,
+   "ofRoutes": 2,
+   "allFree": true,
+   "routes": [
+    "mr_e1 -> mr_e3@8,1",
+    "mr_e3 -> mr_e1@1,8"
+   ],
+   "chests": [
+    "FREE Mist Potion@13,3"
+   ]
+  },
+  {
+   "map": "mr_e3",
+   "puzzles": "updraft:mr_ferry_w updraft:mr_ferry_e crack:mr_crack_a crack:mr_crack_b",
+   "exits": 2,
+   "freeRoutes": 0,
+   "ofRoutes": 0,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "mr_n2",
+   "puzzles": "crack:mr_moai2 pillar:mr_npil0 pillar:mr_npil1 pillar:mr_npil2 vines:mr_chains",
+   "exits": 3,
+   "freeRoutes": 1,
+   "ofRoutes": 2,
+   "allFree": false,
+   "routes": [
+    "mr_n4 -> mr_n1@12,19"
+   ],
+   "chests": []
+  },
+  {
+   "map": "mr_ball",
+   "puzzles": "catchable:mr_magma_ball",
+   "exits": 1,
+   "freeRoutes": 0,
+   "ofRoutes": 0,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  },
+  {
+   "map": "mr_tablet",
+   "puzzles": "windstone:mr_tabletstone",
+   "exits": 1,
+   "freeRoutes": 0,
+   "ofRoutes": 0,
+   "allFree": false,
+   "routes": [],
+   "chests": []
+  }
+ ]
+}

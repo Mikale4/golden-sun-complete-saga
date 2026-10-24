@@ -1,0 +1,94 @@
+# A whole area drawn by ChatGPT (prompts/area_<area>.md) becomes that area's own tiles.
+#
+#   python tools/area_to_tiles.py <area> <image> <cols> <rows>
+#
+# The drawing is resampled onto the map's grid (16 px a tile), every cell is classified - open grass, bare earth,
+# or scenery (trees, stumps, fences, props) - and written out: the grass and earth as a few shared variants
+# (assets/tiles/<area>_grass_N.png, <area>_earth_N.png), everything else as its own cell tile
+# (<area>_c<x>_<y>.png, identical cells shared). js/maps/<area>_picture.js then holds the table: which tile
+# stands on each cell and whether the party can walk there. tools/area_ref/<area>_review.png shows the result with
+# the solid cells tinted red, for checking by eye; overrides go in the map file, not here.
+import os, sys, json, hashlib
+import numpy as np
+from PIL import Image, ImageDraw
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, 'assets', 'tiles'); REF = os.path.join(ROOT, 'tools', 'area_ref'); MAPS = os.path.join(ROOT, 'js', 'maps')
+T = 16
+
+def classify(cell):
+    # fractions of the cell that read as open grass, bare earth, foliage/shadow, or wood
+    r, g, b = [cell[..., i].astype(int) for i in range(3)]
+    mx = np.maximum(np.maximum(r, g), b); mn = np.minimum(np.minimum(r, g), b); sat = (mx - mn) / np.maximum(mx, 1)
+    grass = (g > r + 20) & (g > b + 40) & (g > 120) & (sat > 0.35)
+    earth = (r > 170) & (g > 140) & (b < 140) & (r > g) & (g > b) & (r - b > 50)
+    dark = (mx < 90)
+    wood = (r > 90) & (r > g + 15) & (g > b + 10) & (b < 120) & ~earth
+    n = cell.shape[0] * cell.shape[1]
+    return { 'grass': grass.sum() / n, 'earth': earth.sum() / n, 'dark': dark.sum() / n, 'wood': wood.sum() / n }
+
+def main():
+    area, path, cols, rows = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+    im = Image.open(path).convert('RGB').resize((cols * T, rows * T), Image.LANCZOS)
+    os.makedirs(REF, exist_ok=True); im.save(os.path.join(REF, area + '_drawn.png'))
+    a = np.array(im)
+    cls = [[None] * cols for _ in range(rows)]; feats = {}
+    for y in range(rows):
+        for x in range(cols):
+            f = classify(a[y * T:(y + 1) * T, x * T:(x + 1) * T]); feats[(x, y)] = f
+            # open ground: mostly grass and/or earth, with no bark and little deep shadow (tufts and small plants
+            # on the grass are walked over; roots, trunks, crates and the wood are not)
+            walk = f['grass'] + f['earth'] > 0.6 and f['wood'] < 0.08 and f['dark'] < 0.12
+            cls[y][x] = ('earth' if f['earth'] > f['grass'] else 'grass') if walk else 'scenery'
+    # the shared grass and earth tiles: a few variants each, by k-means on the cells' pixels
+    def variants(kind, k):
+        cells = [(x, y) for (x, y), f in feats.items() if cls[y][x] == kind]
+        if not cells: return {}
+        X = np.stack([a[y * T:(y + 1) * T, x * T:(x + 1) * T].reshape(-1).astype(float) for x, y in cells])
+        k = min(k, len(cells)); rng = np.random.default_rng(1); cent = X[rng.choice(len(X), k, replace=False)]
+        for _ in range(12):
+            lab = np.argmin(((X[:, None, :] - cent[None, :, :]) ** 2).sum(axis=2), axis=1)
+            for i in range(k):
+                if (lab == i).any(): cent[i] = X[lab == i].mean(axis=0)
+        names = {}
+        for i in range(k):
+            members = [c for c, l in zip(cells, lab) if l == i]
+            if not members: continue
+            # the member nearest the centre is the tile (a real cell, not a blurred mean)
+            best = min(members, key=lambda c: ((a[c[1] * T:(c[1] + 1) * T, c[0] * T:(c[0] + 1) * T].reshape(-1).astype(float) - cent[i]) ** 2).sum())
+            tile = a[best[1] * T:(best[1] + 1) * T, best[0] * T:(best[0] + 1) * T]
+            name = f'{area}_{kind}_{i}'; Image.fromarray(tile).save(os.path.join(OUT, name + '.png'))
+            for c in members: names[c] = name
+        return names
+    cellname = {}; cellname.update(variants('grass', 4)); cellname.update(variants('earth', 2))
+    # every other cell is its own tile, identical cells shared
+    seen = {}
+    for y in range(rows):
+        for x in range(cols):
+            if (x, y) in cellname: continue
+            tile = a[y * T:(y + 1) * T, x * T:(x + 1) * T]; h = hashlib.md5(tile.tobytes()).hexdigest()
+            if h not in seen: seen[h] = f'{area}_c{x}_{y}'; Image.fromarray(tile).save(os.path.join(OUT, seen[h] + '.png'))
+            cellname[(x, y)] = seen[h]
+    names = sorted(set(cellname.values())); index = {n: i for i, n in enumerate(names)}
+    for f in os.listdir(OUT):   # cell tiles of an earlier cut that this one no longer uses
+        if f.startswith(area + '_c') and f.endswith('.png') and f[:-4] not in index: os.remove(os.path.join(OUT, f))
+    grid = [[index[cellname[(x, y)]] for x in range(cols)] for y in range(rows)]
+    solid = [[0 if cls[y][x] in ('grass', 'earth') else 1 for x in range(cols)] for y in range(rows)]
+    js = f"// Generated by tools/area_to_tiles.py from ChatGPT's drawing of the whole area: do not edit by hand.\n'use strict';\nconst {area.upper()}_PICTURE = {json.dumps({ 'w': cols, 'h': rows, 'names': names, 'grid': grid, 'solid': solid }, separators=(',', ':'))};\n"
+    js += f"for (const n of {area.upper()}_PICTURE.names) if (!Tiles.defs[n]) Tiles.reg(n, {{ kind: /_(grass|earth)_/.test(n) ? 'grass' : 'scenery', solid: false }}, g => {{ }});   // the pictures come from assets/tiles at load\n"
+    open(os.path.join(MAPS, area + '_picture.js'), 'w', encoding='utf-8').write(js)
+    # the review: the drawing with solid cells tinted and the grid drawn
+    rv = im.copy().resize((cols * T * 2, rows * T * 2), Image.NEAREST); d = ImageDraw.Draw(rv, 'RGBA')
+    for y in range(rows):
+        for x in range(cols):
+            if solid[y][x]: d.rectangle((x * 32, y * 32, x * 32 + 31, y * 32 + 31), fill=(255, 0, 0, 70))
+            elif cls[y][x] == 'earth': d.rectangle((x * 32, y * 32, x * 32 + 31, y * 32 + 31), fill=(255, 255, 0, 40))
+    for x in range(0, cols * 32, 32): d.line([(x, 0), (x, rows * 32)], fill=(255, 255, 255, 60))
+    for y in range(0, rows * 32, 32): d.line([(0, y), (cols * 32, y)], fill=(255, 255, 255, 60))
+    for x in range(0, cols, 4):
+        for y in range(0, rows, 4): d.text((x * 32 + 2, y * 32 + 2), f'{x},{y}', fill=(255, 255, 0, 255))
+    rv.save(os.path.join(REF, area + '_review.png'))
+    counts = { k: sum(1 for (x, y) in feats if cls[y][x] == k) for k in ('grass', 'earth', 'scenery') }
+    print(f'{area}: {cols}x{rows} cells, {counts}, {len(names)} tiles written; review at tools/area_ref/{area}_review.png')
+
+if __name__ == '__main__': main()
