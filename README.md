@@ -13,9 +13,34 @@ python serve.py
 
 then open <http://localhost:8765> in Chrome/Edge/Firefox.
 
-Option B: double-click `index.html` (works offline; no server needed).
+or double-click **`Play Golden Sun.bat`**, which does the same and opens the browser for you. If another project
+already holds 8765 the server steps to the next free port and prints the one it took. Pass `--local` to keep it to
+this machine.
+
+Option B: double-click `index.html` (works offline; no server needed) — the music and effects are fetched over
+http, so this way the game is silent.
 
 The game renders at the GBA's 240×160 and integer-scales to your window. Press **F** for fullscreen.
+
+## On a phone or tablet
+
+`serve.py` serves the whole local network, and prints the address to use:
+
+```
+On this network:  http://192.168.x.x:8765   (phone/tablet on the same Wi-Fi)
+```
+
+Open that on the phone and the on-screen pad appears by itself (`js/core/touch.js`): a d-pad on the left, Z / X / C
+on the right, the quick-Psynergy and challenge keys in the corner, with fullscreen and mute beside them. A thumb can
+slide from one button to the next without lifting. In portrait the pad takes a band under the screen; in landscape it
+lies over the corners. `?touch=1` forces the pad on for testing on a desktop, `?touch=0` off.
+
+Windows blocks this until the port is allowed through the firewall on **private** networks — once, from an elevated
+PowerShell:
+
+```
+netsh advfirewall firewall add rule name="Golden Sun (LAN)" dir=in action=allow protocol=TCP localport=8765-8774 profile=private
+```
 
 ## Controls
 
